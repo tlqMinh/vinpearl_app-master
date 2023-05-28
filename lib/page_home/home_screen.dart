@@ -1,13 +1,20 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:badges/badges.dart' as badges;
+import 'package:provider/provider.dart';
 import 'package:vinpearl_app/auth.dart';
+import 'package:vinpearl_app/cart_page/cart_page.dart';
 import 'package:vinpearl_app/page_detail/page_popular_service_detail.dart';
 import 'package:vinpearl_app/page_profile/page_profile.dart';
-import 'package:vinpearl_app/page_resort_service/meeting_page.dart';
-import 'package:vinpearl_app/page_resort_service/page_golf.dart';
-import 'package:vinpearl_app/page_resort_service/page_resort.dart';
-import 'package:vinpearl_app/page_resort_service/page_restaurant.dart';
+import 'package:vinpearl_app/page_search/search_page.dart';
+import 'package:vinpearl_app/service_data/resort_data.dart';
+import 'package:vinpearl_app/service_page/meeting_page.dart';
+import 'package:vinpearl_app/service_page/page_golf.dart';
+import 'package:vinpearl_app/service_page/page_resort.dart';
+import 'package:vinpearl_app/service_page/page_restaurant.dart';
+import 'package:vinpearl_app/your_bill_page/your_bill.dart';
+
+import '../cart_page/cart_data.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({Key? key}) : super(key: key);
@@ -54,27 +61,32 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.menu),
+          icon: const Icon(Icons.menu),
           onPressed: _openDrawer,
         ),
         actions: [
           GestureDetector(
-            onTap: () {
-
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: badges.Badge(
-                position: badges.BadgePosition.topEnd(top: 1, end: 0),
-                badgeAnimation: const badges.BadgeAnimation.scale(),
-                child: const Icon(
-                  Icons.shopping_cart,
-                  size: 40,
-                  color: Colors.black,
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const CartPage(),));
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: badges.Badge(
+                  position: badges.BadgePosition.topEnd(top: -5, end: 0),
+                  badgeContent: Consumer<CartData>(
+                    builder: (context, value, child) {
+                      return Text("${value.cartItems.length}");
+                    },
+                  ),
+                  badgeAnimation: const badges.BadgeAnimation.scale(),
+                  child: const Icon(
+                    Icons.shopping_cart,
+                    size: 40,
+                    color: Colors.black,
+                  ),
                 ),
               ),
             ),
-          )
         ],
       ),
 
@@ -85,48 +97,51 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: EdgeInsets.zero,
           children: <Widget>[
            DrawerHeader(
+             padding: EdgeInsets.zero,
              child: Container(
+               color: Colors.orangeAccent,
                child: Padding(
-                 padding: const EdgeInsets.all(8.0),
+                 padding: const EdgeInsets.all(15.0),
                  child: Column(
                    crossAxisAlignment: CrossAxisAlignment.start,
                    mainAxisAlignment: MainAxisAlignment.center,
                    children: <Widget>[
                      CircleAvatar(
-                       child: Text('A', style: TextStyle(fontSize: 30),),
-                       backgroundColor: Colors.cyan,
+                       child: Text(user!.email!.substring(0,1), style: const TextStyle(fontSize: 30),),
+                       backgroundColor: Colors.deepPurple,
                        maxRadius: 30,
                      ),
                      _userUid(),
                    ],
                  ),
                ),
-             ),),
+             ),
+           ),
 
             ListTile(
-              leading: Icon(Icons.person_outline),
-              title: Text('Profile', style: TextStyle(fontSize: 16),),
+              leading: const Icon(Icons.person_outline),
+              title: const Text('Profile', style: TextStyle(fontSize: 16),),
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage(),));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfilePage(),));
               },
             ),
             ListTile(
-              leading: Icon(Icons.receipt_long_outlined),
-              title: Text('Your Bill', style: TextStyle(fontSize: 16)),
+              leading: const Icon(Icons.receipt_long_outlined),
+              title: const Text('Your Bill', style: TextStyle(fontSize: 16)),
               onTap: () {
-                // Xử lý khi người dùng chọn mục xem bill
+                Navigator.push(context, MaterialPageRoute(builder: (context) => OrderHistoryPage(),));
               },
             ),
             ListTile(
-              leading: Icon(Icons.settings_outlined),
-              title: Text('Setting', style: TextStyle(fontSize: 16)),
+              leading: const Icon(Icons.settings_outlined),
+              title: const Text('Setting', style: TextStyle(fontSize: 16)),
               onTap: () {
                 // Xử lý khi người dùng chọn mục cai dat
               },
             ),
             ListTile(
-              leading: Icon(Icons.logout_outlined),
-              title: Text('Log Out', style: TextStyle(fontSize: 16)),
+              leading: const Icon(Icons.logout_outlined),
+              title: const Text('Log Out', style: TextStyle(fontSize: 16)),
               onTap: () {
                 signOut();
                 // Xử lý khi người dùng chọn mục log out
@@ -136,51 +151,30 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
 
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const SearchPage(),)
+          );
+        },
+        backgroundColor: Colors.blue,
+        child: const Icon(
+          Icons.search,
+          color: Colors.white,
+          size: 40,
+        ),),
+      
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.only(left: 10.0, right: 10.0, top: 28.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+
               const Text("VINPEARL", style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: Colors.deepOrangeAccent),),
               const Text("Booking your tour", style: TextStyle(fontSize: 25),),
               const SizedBox(height: 35,),
-
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(30),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.5),
-                      spreadRadius: 5,
-                      blurRadius: 7,
-                      offset: Offset(0, 3), // Điều chỉnh hướng đổ bóng
-                    ),
-                  ],
-                ),
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Search...',
-                    prefixIcon: const Icon(Icons.search),
-                    suffixIcon: IconButton(
-                      icon: const Icon(Icons.clear),
-                      onPressed: () {
-                        // Xóa nội dung của TextField
-                      },
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      borderSide: BorderSide.none, // Xóa viền biên của TextField
-                    ),
-                    filled: true,
-                    fillColor: Colors.white, // Màu nền cho TextField
-                  ),
-                  onChanged: (value) {
-                    // Xử lý khi giá trị của TextField thay đổi
-                  },
-                ),
-              ),
 
               const SizedBox(height: 40,),
               const Text("Categories", style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),),
@@ -192,7 +186,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Expanded(
                       child: GestureDetector(
                         onTap: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => ResortPage(),));
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => const ResortPage(),));
                         },
                         child: Column(
                           children: [
@@ -206,7 +200,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     color: Colors.grey.withOpacity(0.5),
                                     spreadRadius: 5,
                                     blurRadius: 7,
-                                    offset: Offset(0, 3), // changes position of shadow
+                                    offset: const Offset(0, 3), // changes position of shadow
                                   ),
                                 ],
                               ),
@@ -222,7 +216,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Expanded(
                       child: GestureDetector(
                         onTap: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => RestaurantPage(),));
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => const RestaurantPage(),));
                         },
                         child: Column(
                           children: [
@@ -236,7 +230,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     color: Colors.grey.withOpacity(0.5),
                                     spreadRadius: 5,
                                     blurRadius: 7,
-                                    offset: Offset(0, 3), // changes position of shadow
+                                    offset: const Offset(0, 3), // changes position of shadow
                                   ),
                                 ],
                               ),
@@ -253,7 +247,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Expanded(
                       child: GestureDetector(
                         onTap: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => GolfPage(),));
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => const GolfPage(),));
                         },
                         child: Column(
                           children: [
@@ -265,7 +259,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       color: Colors.grey.withOpacity(0.5),
                                       spreadRadius: 5,
                                       blurRadius: 7,
-                                      offset: Offset(0, 3), // changes position of shadow
+                                      offset: const Offset(0, 3), // changes position of shadow
                                     ),
                                   ],
                                   borderRadius: BorderRadius.circular(20),
@@ -284,7 +278,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Expanded(
                       child: GestureDetector(
                         onTap: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => MeetingPage(),));
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => const MeetingPage(),));
                         },
                         child: Column(
                           children: [
@@ -298,7 +292,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     color: Colors.grey.withOpacity(0.5),
                                     spreadRadius: 5,
                                     blurRadius: 7,
-                                    offset: Offset(0, 3), // changes position of shadow
+                                    offset: const Offset(0, 3), // changes position of shadow
                                   ),
                                 ],
                               ),
@@ -317,102 +311,133 @@ class _HomeScreenState extends State<HomeScreen> {
 
               const Text("Popular", style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),),
 
-              SizedBox(height: 30,),
+              const SizedBox(height: 30,),
 
-              GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 1,
-                  childAspectRatio: 1.9,
-                  mainAxisSpacing: 25,
-                ),
-
-                // itemCount: popularServic`es.length,
-                itemCount: 5,
-                itemBuilder: (BuildContext context, int index) {
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => PopularServiceDetail(),));
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.5),
-                            spreadRadius: 5,
-                            blurRadius: 7,
-                            offset: Offset(0, 3), // changes position of shadow
-                          ),
-                        ],
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(30),
+              StreamBuilder<List<ResortServiceSnapshot>>(
+                stream: ResortServiceSnapshot.listResortService(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    print(snapshot.error);
+                    return const Center(
+                      child: Text("Lỗi hiển thị", style: TextStyle(color: Colors
+                          .red),),
+                    );
+                  }
+                  else if (!snapshot.hasData) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  } else {
+                    var list = snapshot.data!;
+                    return GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 1,
+                        childAspectRatio: 1.7,
+                        mainAxisSpacing: 25,
                       ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Padding(
-                              padding: EdgeInsets.all(12.0),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
+                      // itemCount: popularServic`es.length,
+                      itemCount: 4,
+                      itemBuilder: (BuildContext context, int index) {
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(context, MaterialPageRoute(
+                              builder: (context) => PopularServiceDetail(resortServiceSnapshot: list[index],),));
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.5),
+                                  spreadRadius: 5,
+                                  blurRadius: 7,
+                                  offset: const Offset(
+                                      0, 3), // changes position of shadow
+                                ),
+                              ],
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(10.0),
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      children: [
+                                        // name Service
+                                        Expanded(
+                                          child: Text(
+                                            list[index].resortService!.tenDV,
+                                            style: const TextStyle(
+                                                fontSize: 17,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.blue
+                                            ),
+                                          ),
+                                        ),
 
-                                  // name Service
-                                  Text(
-                                    "Vinpearl Luxury Nha Trang",
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.blue
+                                        //Phone number
+                                        Expanded(
+                                          child: Row(
+                                            children: [
+                                              const Icon(
+                                                Icons.phone_outlined, size: 22,
+                                              ),
+                                              Text(list[index].resortService.sdt,style: const TextStyle(fontSize: 16),)
+                                            ],
+                                          ),
+                                        ),
+
+                                        // address
+                                        Expanded(
+                                          child: Row(
+                                            children: [
+                                              Image.asset(
+                                                "assets/images/maps-and-flags.png",
+                                                width: 22,),
+                                              Expanded(
+                                                  child: Text(list[index].resortService!.diaChi,
+                                                    style: const TextStyle(fontSize: 16),
+                                                    overflow: TextOverflow.ellipsis,))
+                                            ],
+                                          ),
+                                        ),
+
+                                        // rating
+                                        Expanded(
+                                          child: Row(
+                                            children: [
+                                              const Icon(Icons.star, size: 22),
+                                              Text(list[index].resortService!.xepLoai,
+                                                  style: const TextStyle(fontSize: 16)),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-
-                                  SizedBox(height: 15,),
-
-                                  //Phone number
-                                  Row(
-                                    children: [
-                                      Icon(Icons.phone_outlined, size: 20,),
-                                      Text("0258 359 9099", style: TextStyle(fontSize: 13),)
-                                    ],
-                                  ),
-
-                                  SizedBox(height: 15,),
-
-                                  // address
-                                  Row(
-                                    children: [
-                                      Image.asset("assets/images/maps-and-flags.png", width: 20,),
-                                      Expanded(
-                                          child: Text("Hon Tre Island, Nha Trang, Vietnam", style: TextStyle(fontSize: 13), overflow: TextOverflow.ellipsis,))
-                                    ],
-                                  ),
-
-                                  SizedBox(height: 15,),
-
-                                  // rating
-                                  Row(
-                                    children: [
-                                      Icon(Icons.star, size: 20),
-                                      Text("4.5", style: TextStyle(fontSize: 13)),
-                                    ],
-                                  ),
-
-                                ],
-                              ),
+                                ),
+                                Expanded(
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(30),
+                                    child: Image.network(
+                                        "${list[index].resortService.anh[0]}",
+                                        height: 200,
+                                        fit: BoxFit.cover)
+                                ),
+                                )
+                              ],
                             ),
                           ),
-                          ClipRRect(
-                              borderRadius: BorderRadius.circular(30),
-                              child: Image.network('https://cf.bstatic.com/xdata/images/hotel/square600/418142776.webp?k=e313a78bc7c97efe03aa10423cd819b7147c621722bf078b93cf92427594b12c&o=&s=1',  width: 170, height: 180,fit: BoxFit.cover)
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
+                        );
+                      },
+                    );
+                  }
                 },
               )
-
             ],
           ),
         ),

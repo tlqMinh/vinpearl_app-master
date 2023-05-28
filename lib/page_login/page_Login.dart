@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:vinpearl_app/auth.dart';
@@ -11,6 +12,7 @@ class LogInRegisterPage extends StatefulWidget {
 }
 
 class _LogInRegisterPageState extends State<LogInRegisterPage> {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   String? errorMessage = '';
   bool isLogin = true;
@@ -22,17 +24,17 @@ class _LogInRegisterPageState extends State<LogInRegisterPage> {
   Future<void> signInWithEmailAndPassword() async{
     try{
       await Auth().signInWithEmailAndPassword(
-        email: _controllerEmail.text,
-        password: _controllerPassword.text,
+        email: _controllerEmail.text.trim(),
+        password: _controllerPassword.text.trim(),
       );
     } on FirebaseAuthException catch (e){
       setState(() {
-        if (e.code == 'user-not-found') {
+        if (e.code == 'Không tồn tại tài khoản') {
           print('Không tồn tại tài khoản');
-        } else if (e.code == 'wrong-password') {
+        } else if (e.code == 'Sai mật khẩu') {
           print('Sai mật khẩu');
         }
-        errorMessage = e.message;
+        errorMessage = e.code;
       });
     }
   }
@@ -41,23 +43,44 @@ class _LogInRegisterPageState extends State<LogInRegisterPage> {
     try{
       if(_controllerPassword.text == _controllerConfirmPassword.text){
         await Auth().createUserWithEmailAndPassword(
-            email: _controllerEmail.text,
-            password: _controllerPassword.text
+            email: _controllerEmail.text.trim(),
+            password: _controllerPassword.text.trim(),
         );
       } else{
         errorMessage = 'Xác nhận mật khẩu không đúng';
       }
     } on FirebaseAuthException catch (e){
       setState(() {
-        if (e.code == 'weak-password') {
+        if (e.code == 'Mật khẩu quá yếu') {
           print('Mật khẩu quá yếu');
-        } else if (e.code == 'email-already-in-use') {
+        } else if (e.code == 'Tài khoản emal đã tồn tại') {
           print('Tài khoản emal đã tồn tại');
         }
-        errorMessage = e.message;
+        errorMessage = e.code;
       }
       );
     }
+  }
+
+  void addUser(String name, String email) {
+    _firestore.collection('users').add({
+      'name': name,
+      'email': email,
+    }).then((value) {
+      print('User added successfully');
+    }).catchError((error) {
+      print('Failed to add user: $error');
+    });
+  }
+
+  void getUsers() {
+    _firestore.collection('users').get().then((querySnapshot) {
+      querySnapshot.docs.forEach((doc) {
+        print('Name: ${doc['name']}, Email: ${doc['email']}');
+      });
+    }).catchError((error) {
+      print('Failed to get users: $error');
+    });
   }
 
   Widget _entryField(
@@ -137,7 +160,13 @@ class _LogInRegisterPageState extends State<LogInRegisterPage> {
       child:Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-           Text('Quên mật khẩu ?', style: TextStyle(fontSize: 18),),
+          TextButton(
+            onPressed: () => null,
+            child: Text(
+              'Quên mật khẩu ?',
+              style: TextStyle(fontSize: 18),
+            ),
+          ),
         ],
       )
     );
@@ -176,12 +205,11 @@ class _LogInRegisterPageState extends State<LogInRegisterPage> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              SizedBox(height: 50,),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Image(image: AssetImage('assets/images/logoVinP.png'), height: 300, width: 300,),
+                  Image(image: AssetImage('assets/images/logoVinP.png'), height: 200, width: 300,),
                 ],
               ),
               SizedBox(height: 30,),
@@ -209,11 +237,8 @@ class _LogInRegisterPageState extends State<LogInRegisterPage> {
                             ],
                           ),
                         ),
-                        SizedBox(height: 10,),
                         //báo khi không đăng nhập thành công
-                        SizedBox(height: 10,),
                         _forgotPassword(),
-                        SizedBox(height: 10,),
                         _errorMessage(),
                         SizedBox(height: 10,),
                         _submitButton(),

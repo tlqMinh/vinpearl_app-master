@@ -50,6 +50,7 @@ class ResortServiceSnapshot {
     required this.resortService,
     required this.documentReference,
   });
+
   // hàm get để lấy thông tin cho trang cart
   String getTenDV() {
     return resortService.tenDV;
@@ -57,20 +58,34 @@ class ResortServiceSnapshot {
   String getAnh() {
     return resortService.anh[0];
   }
-  void updatePrice() {
-    resortService.gia = (double.parse(resortService.gia) * quantity).toString();
+  double getGia(){
+    final price = double.parse(resortService.gia);
+    return price * getQuantity();
+  }
+
+  //tăng giảm số lượng
+  int quantity = 1;
+  int getQuantity() {
+    return quantity;
+  }
+  void increaseQuantity() {
+    quantity++;
+  }
+  void decreaseQuantity() {
+    if (quantity > 1) {
+      quantity--;
+    }
   }
 
 
-  factory ResortServiceSnapshot.fromSnapshot(DocumentSnapshot docSnapGolfService) {
+  factory ResortServiceSnapshot.fromSnapshot(DocumentSnapshot docSnapResortService) {
     return ResortServiceSnapshot(
-      resortService: ResortService.fromJson(docSnapGolfService.data() as Map<String, dynamic>),
-      documentReference: docSnapGolfService.reference,
+      resortService: ResortService.fromJson(docSnapResortService.data() as Map<String, dynamic>),
+      documentReference: docSnapResortService.reference,
     );
   }
 
-  static Stream<List<ResortServiceSnapshot>> listResortService()
-  {
+  static Stream<List<ResortServiceSnapshot>> listResortService(){
     Stream<QuerySnapshot> streamQS = FirebaseFirestore.instance.collection("ResortService")
         .snapshots();
     Stream<List<DocumentSnapshot>> streamListDocSnap = streamQS.map(
@@ -79,22 +94,4 @@ class ResortServiceSnapshot {
     );
   }
 
-  int quantity = 1;
-
-  // Method to get quantity
-  int getQuantity() {
-    return quantity;
-  }
-
-  // Method to increase quantity
-  void increaseQuantity() {
-    quantity++;
-  }
-
-  // Method to decrease quantity
-  void decreaseQuantity() {
-    if (quantity > 1) {
-      quantity--;
-    }
-  }
 }

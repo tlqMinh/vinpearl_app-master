@@ -1,13 +1,23 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:vinpearl_app/service_data/golf_data.dart';
 
-class GolfPageDetail extends StatelessWidget {
-  const GolfPageDetail({Key? key}) : super(key: key);
+import '../cart_page/cart_data.dart';
 
+class GolfPageDetail extends StatefulWidget {
+  GolfServiceSnapshot golfServiceSnapshot;
+  GolfPageDetail({Key? key, required this.golfServiceSnapshot}) : super(key: key);
+
+  @override
+  State<GolfPageDetail> createState() => _GolfPageDetailState();
+}
+
+class _GolfPageDetailState extends State<GolfPageDetail> {
+  GolfServiceSnapshot? golfServiceSnapshot;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -21,17 +31,11 @@ class GolfPageDetail extends StatelessWidget {
                         enableInfiniteScroll: true,
                         autoPlay: true,
                       ),
-                      items: [
-                        "https://statics.vinpearl.com/styles/267x267/public/2022_03/534%20%C3%97%20534%20px-1%20(1)_1648712162.png.webp?itok=3qhlydUA",
-                        "https://statics.vinpearl.com/styles/267x267/public/2022_03/534%20%C3%97%20534%20px-2%20(1)_1648712167.png.webp?itok=Bq3HDuWu",
-                        "https://statics.vinpearl.com/styles/267x267/public/2022_03/534%20%C3%97%20534%20px-3%20(1)_1648712175.png.webp?itok=h7YCyWTr",
-                        "https://statics.vinpearl.com/styles/267x267/public/2022_03/534%20%C3%97%20534%20px-4%20(1)_1648712181.png.webp?itok=6vPD0Uup"
-                        // Add more image URLs here
-                      ].map((item) {
+                      items: golfServiceSnapshot!.golfService.anh.map((item) {
                         return Container(
-                          padding: EdgeInsets.only(top: 10),
+                          padding: const EdgeInsets.only(top: 10),
                           child: ClipRRect(
-                            borderRadius: BorderRadius.all(Radius.circular(30)),
+                            borderRadius: const BorderRadius.all(Radius.circular(30)),
                             child: Image.network(
                               item,
                               width: MediaQuery.of(context).size.width,
@@ -47,7 +51,7 @@ class GolfPageDetail extends StatelessWidget {
                         child: Row(
                           children: [
                             IconButton(
-                              icon: Icon(Icons.arrow_back, color: Colors.white,),
+                              icon: const Icon(Icons.arrow_back, color: Colors.white,),
                               onPressed: () {
                                 Navigator.pop(context);
                               },
@@ -60,25 +64,33 @@ class GolfPageDetail extends StatelessWidget {
                   ]
               ),
               Container(
-                padding: EdgeInsets.all(15.0),
+                padding: const EdgeInsets.all(15.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
                         //Giá
-                        Text("2.000.000vnd", style: TextStyle(color: Colors.orangeAccent, fontWeight: FontWeight.bold, fontSize: 20),),
-                        SizedBox(width: 130,),
-                        Icon(Icons.star, size: 16,),
-                        Text("4.6", style: TextStyle(fontSize: 16),)
+                        Expanded(
+                          flex: 4,
+                          child: Text("${golfServiceSnapshot!.golfService.gia} vnđ", style: TextStyle(color: Colors.orangeAccent, fontWeight: FontWeight.bold, fontSize: 22),)),
+                        Expanded(
+                          flex: 1,
+                          child: Row(
+                            children: [
+                              Icon(Icons.star, size: 16, color: Colors.orangeAccent,),
+                              Text(golfServiceSnapshot!.golfService.xepLoai, style: TextStyle(fontSize: 16, ),)
+                            ],
+                          )
+                        )
                       ],
                     ),
 
                     SizedBox(height: 10,),
 
                     Text(
-                      "VINPEARL GOLF NHA TRANG",
-                      style: TextStyle(
+                      golfServiceSnapshot!.golfService.tenDV,
+                      style: const TextStyle(
                         fontSize: 23,
                         fontWeight: FontWeight.bold,
                       ),
@@ -89,7 +101,7 @@ class GolfPageDetail extends StatelessWidget {
                       children: [
                         Icon(Icons.phone_rounded),
                         SizedBox(width: 5,),
-                        Text("(+84) 258 359 0919", style: TextStyle(fontSize: 16),),
+                        Text(golfServiceSnapshot!.golfService.sdt, style: TextStyle(fontSize: 16),),
                       ],
                     ),
 
@@ -99,44 +111,47 @@ class GolfPageDetail extends StatelessWidget {
                         Image.asset("assets/images/maps-and-flags.png", width: 20,),
                         SizedBox(width: 5,),
                         Expanded(
-                            child: Text("Hon Tre Island, Vinh Nguyen Ward, Nha Trang City, Khanh Hoa Province, Vietnam", style: TextStyle(fontSize: 16),))
+                            child: Text(golfServiceSnapshot!.golfService.diaChi, style: const TextStyle(fontSize: 16),))
                       ],
                     ),
-
-                    SizedBox(height: 10,),
+                    const SizedBox(height: 10,),
                     Row(
                       children: [
-                        Icon(Icons.mail_outlined),
-                        SizedBox(width: 5,),
-                        Text("teetime-nhatrang@vinpearl.com")
+                        const Icon(Icons.mail_outlined),
+                        const SizedBox(width: 5,),
+                        Text(golfServiceSnapshot!.golfService.email)
                       ],
                     ),
 
                     SizedBox(height: 20,),
-                    Text("Desription", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
-
+                    const Text("Description", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
                     SizedBox(height: 10,),
-                    Text("Located on the 4th floor of Vinpearl Condotel Beachfront Nha Trang, "
-                        "having a capacity of around 150 guests, Lagoon Restaurant offers à la "
-                        "carte menu for lunch and dinner with a variety of signature Vietnamese "
-                        "dishes and a collection of diverse Asian-Western menus. Here customers "
-                        "will enjoy their meals in a luxurious and delicate culinary space inspired "
-                        "by Oriental architecture. Every corner of the restaurant is meticulously "
-                        "decorated as this is a place not only to gather with friends and family "
-                        "but also to come back every single time guests visit the beach town of "
-                        "Nha Trang, thanks to the food prepared by our talented famous chefs.")
-
+                    Text(golfServiceSnapshot!.golfService.moTa, style: TextStyle(fontSize: 16),textAlign: TextAlign.justify,)
                   ],
                 ),
               ),
               Center(
                 child: Container(
                   width: 220,
-                  padding: EdgeInsets.only(bottom: 20, top: 20),
+                  padding: const EdgeInsets.only(bottom: 20, top: 20),
                   child: ElevatedButton(
                     onPressed: () {
-                      // Add service to cart logic goes here
-                    },
+                      final cartProvider = Provider.of<CartData>(context, listen: false);
+
+                      if(!cartProvider.isInCart(golfServiceSnapshot)){
+                        cartProvider.addItemToCart(golfServiceSnapshot);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text('Đã thêm vào giỏ hàng')
+                            )
+                        );
+                      }else{
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(
+                                'Dịch vụ đã có trong giỏ hàng')
+                            )
+                        );
+                      }                    },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -161,5 +176,10 @@ class GolfPageDetail extends StatelessWidget {
         ),
       ),
     );
+  }
+  @override
+  void initState() {
+    super.initState();
+    golfServiceSnapshot = widget.golfServiceSnapshot;
   }
 }

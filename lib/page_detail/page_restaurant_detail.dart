@@ -1,13 +1,23 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:vinpearl_app/service_data/restaurant_data.dart';
 
-class RestaurantPageDetail extends StatelessWidget {
-  const RestaurantPageDetail({Key? key}) : super(key: key);
+import '../cart_page/cart_data.dart';
 
+class RestaurantPageDetail extends StatefulWidget {
+  RestaurantServiceSnapshot restaurantServiceSnapshot;
+  RestaurantPageDetail({Key? key, required this.restaurantServiceSnapshot}) : super(key: key);
+
+  @override
+  State<RestaurantPageDetail> createState() => _RestaurantPageDetailState();
+}
+
+class _RestaurantPageDetailState extends State<RestaurantPageDetail> {
+  RestaurantServiceSnapshot? restaurantServiceSnapshot;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -21,17 +31,11 @@ class RestaurantPageDetail extends StatelessWidget {
                         enableInfiniteScroll: true,
                         autoPlay: true,
                       ),
-                      items: [
-                        "https://statics.vinpearl.com/styles/image800x600/public/2021_08/nha-hang-lagoon-vinpearl-nha-trang-2_1628430565.jpg.webp?itok=HMJVlJEc",
-                        "https://statics.vinpearl.com/styles/image800x600/public/2021_08/nha-hang-lagoon-vinpearl-nha-trang-4_1628430567.jpg.webp?itok=cjzpo_8v",
-                        "https://statics.vinpearl.com/styles/image800x600/public/2021_08/nha-hang-lagoon-vinpearl-nha-trang-6_1628430569.jpg.webp?itok=T_BAk13M",
-                        "https://statics.vinpearl.com/styles/image800x600/public/2021_08/nha-hang-lagoon-vinpearl-nha-trang-3_1628430566.jpg.webp?itok=NHuylN8B"
-                        // Add more image URLs here
-                      ].map((item) {
+                      items: restaurantServiceSnapshot!.restaurantService.anh.map((item) {
                         return Container(
-                          padding: EdgeInsets.only(top: 10),
+                          padding: const EdgeInsets.only(top: 10),
                           child: ClipRRect(
-                            borderRadius: BorderRadius.all(Radius.circular(30)),
+                            borderRadius: const BorderRadius.all(Radius.circular(30)),
                             child: Image.network(
                               item,
                               width: MediaQuery.of(context).size.width,
@@ -47,7 +51,7 @@ class RestaurantPageDetail extends StatelessWidget {
                         child: Row(
                           children: [
                             IconButton(
-                              icon: Icon(Icons.arrow_back, color: Colors.white,),
+                              icon: const Icon(Icons.arrow_back, color: Colors.white,),
                               onPressed: () {
                                 Navigator.pop(context);
                               },
@@ -60,73 +64,81 @@ class RestaurantPageDetail extends StatelessWidget {
                   ]
               ),
               Container(
-                padding: EdgeInsets.all(15.0),
+                padding: const EdgeInsets.all(15.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
                         //Giá
-                        Text("2.000.000vnd", style: TextStyle(color: Colors.orangeAccent, fontWeight: FontWeight.bold, fontSize: 17),),
-                        SizedBox(width: 130,),
-                        Icon(Icons.star, size: 16,),
-                        Text("4.6", style: TextStyle(fontSize: 16),)
+                        Expanded(
+                          flex: 4,
+                          child: Text("${restaurantServiceSnapshot!.restaurantService.gia} vnđ", style: const TextStyle(color: Colors.orangeAccent, fontWeight: FontWeight.bold, fontSize: 18),)),
+                        Expanded(
+                          flex: 1,
+                          child: Row(
+                            children: [
+                              const Icon(Icons.star, size: 16, color: Colors.orangeAccent,),
+                              Text(restaurantServiceSnapshot!.restaurantService.xepLoai, style: const TextStyle(fontSize: 16),)
+                          ],
+                          )
+                        )
                       ],
                     ),
-
-                    SizedBox(height: 10,),
-
+                    const SizedBox(height: 10,),
                     Text(
-                      "Lagoon restaurant",
-                      style: TextStyle(
+                      restaurantServiceSnapshot!.restaurantService.tenDV,
+                      style: const TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-
-                    SizedBox(height: 10,),
+                    const SizedBox(height: 10,),
                     Row(
                       children: [
                         Icon(Icons.phone_rounded),
                         SizedBox(width: 5,),
-                        Text("(+84) 258 359 9099", style: TextStyle(fontSize: 16),),
+                        Text(restaurantServiceSnapshot!.restaurantService.sdt, style: const TextStyle(fontSize: 16),),
                       ],
                     ),
-
-                    SizedBox(height: 10,),
+                    const SizedBox(height: 10,),
                     Row(
                       children: [
                         Image.asset("assets/images/maps-and-flags.png", width: 20,),
                         SizedBox(width: 5,),
                         Expanded(
-                            child: Text("Vinpearl Condotel Beachfront Nha Trang 78 - 80 Tran Phu Street, Loc Tho Ward, Nha Trang City", style: TextStyle(fontSize: 16),))
+                          child: Text(restaurantServiceSnapshot!.restaurantService.diaChi, style: TextStyle(fontSize: 16),))
                       ],
                     ),
-
-                    SizedBox(height: 10,),
-                    Text("Desription", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
-
-                    SizedBox(height: 10,),
-                    Text("Located on the 4th floor of Vinpearl Condotel Beachfront Nha Trang, "
-                        "having a capacity of around 150 guests, Lagoon Restaurant offers à la "
-                        "carte menu for lunch and dinner with a variety of signature Vietnamese "
-                        "dishes and a collection of diverse Asian-Western menus. Here customers "
-                        "will enjoy their meals in a luxurious and delicate culinary space inspired "
-                        "by Oriental architecture. Every corner of the restaurant is meticulously "
-                        "decorated as this is a place not only to gather with friends and family "
-                        "but also to come back every single time guests visit the beach town of "
-                        "Nha Trang, thanks to the food prepared by our talented famous chefs.")
-
+                    const SizedBox(height: 10,),
+                    const Text("Description", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
+                    const SizedBox(height: 10,),
+                    Text(restaurantServiceSnapshot!.restaurantService.moTa, style: TextStyle(fontSize: 16), textAlign: TextAlign.justify,)
                   ],
                 ),
               ),
               Center(
                 child: Container(
                   width: 220,
-                  padding: EdgeInsets.only(bottom: 20, top: 20),
+                  padding: const EdgeInsets.only(bottom: 20, top: 20),
                   child: ElevatedButton(
                     onPressed: () {
-                      // Add service to cart logic goes here
+                      final cartProvider = Provider.of<CartData>(context, listen: false);
+
+                      if(!cartProvider.isInCart(restaurantServiceSnapshot)){
+                        cartProvider.addItemToCart(restaurantServiceSnapshot);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text('Đã thêm vào giỏ hàng')
+                            )
+                        );
+                      }else{
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(
+                                'Dịch vụ đã có trong giỏ hàng')
+                            )
+                        );
+                      }
                     },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -152,5 +164,10 @@ class RestaurantPageDetail extends StatelessWidget {
         ),
       ),
     );
+  }
+  @override
+  void initState() {
+    super.initState();
+    restaurantServiceSnapshot = widget.restaurantServiceSnapshot;
   }
 }
